@@ -8,6 +8,7 @@ import (
 func SetupRoutes() *mux.Router {
 	routes := mux.NewRouter()
 	routes.HandleFunc("/health", handlers.HealthCheckHandler).Methods("GET")
+	routes.HandleFunc("/create-habit", handlers.CreateHabitHandler).Methods("POST")
 
 	return routes
 }
