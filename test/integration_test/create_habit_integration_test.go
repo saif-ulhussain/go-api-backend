@@ -9,13 +9,15 @@ import (
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	"go-api-backend/internal/handlers"
+	"go-api-backend/internal/models"
+	"go-api-backend/internal/repository"
 	"net/http"
 	"net/http/httptest"
 )
 
 func setupTestDatabase() (*sql.DB, error) {
 	// Connect to the test database using the updated connection details
-	db, err := sql.Open("postgres", "host=localhost port=5433 user=postgres password=mysecretpassword dbname=go-api-backend-db sslmode=disable")
+	db, err := sql.Open("postgres", "host=localhost port=5432 user=postgres password=mysecretpassword dbname=go-api-backend-db sslmode=disable")
 	if err != nil {
 		return nil, fmt.Errorf("Failed to connect to the test db: %v", err)
 	}
@@ -34,13 +36,17 @@ func clearTestDatabase(db *sql.DB) {
 
 var _ = Describe("CreateHabitHandler", func() {
 	var (
-		testDB *sql.DB
+		testDB          *sql.DB
+		habitRepository *repository.HabitRepository
+		habitHandler    *handlers.HabitHandler
 	)
 
 	BeforeEach(func() {
 		// Set up the test database
 		var err error
 		testDB, err = setupTestDatabase()
+		habitRepository = repository.NewHabitRepository(testDB)
+		habitHandler = handlers.NewHabitHandler(habitRepository)
 		Expect(err).NotTo(HaveOccurred())
 	})
 
@@ -51,7 +57,7 @@ var _ = Describe("CreateHabitHandler", func() {
 
 	Context("When valid habit data is provided", func() {
 		It("Should return a status response of 201", func() {
-			habit := handlers.Habit{
+			habit := models.Habit{
 				Name:        "Exercise 3",
 				StartDate:   "2012-01-02",
 				EndDate:     nil,
@@ -68,7 +74,7 @@ var _ = Describe("CreateHabitHandler", func() {
 
 			res := httptest.NewRecorder()
 
-			handlers.CreateHabitHandler(res, req)
+			habitHandler.CreateHabitHandler(res, req)
 
 			Expect(res.Code).To(Equal(http.StatusCreated))
 		})
@@ -77,7 +83,7 @@ var _ = Describe("CreateHabitHandler", func() {
 	Context("When invalid habit data is provided", func() {
 		It("Should return a status response of 400", func() {
 			// Prepare the request body with missing required fields
-			habit := handlers.Habit{
+			habit := models.Habit{
 				Name: "Exercise 2",
 			}
 			habitJSON, err := json.Marshal(habit)
@@ -88,7 +94,7 @@ var _ = Describe("CreateHabitHandler", func() {
 
 			res := httptest.NewRecorder()
 
-			handlers.CreateHabitHandler(res, req)
+			habitHandler.CreateHabitHandler(res, req)
 
 			Expect(res.Code).To(Equal(http.StatusBadRequest))
 			Expect(res.Body.String()).To(ContainSubstring("Failed to insert new habit"))

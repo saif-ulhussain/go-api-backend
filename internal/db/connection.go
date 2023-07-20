@@ -5,14 +5,15 @@ import (
 	"fmt"
 	"github.com/joho/godotenv"
 	_ "github.com/lib/pq"
+	"os"
 )
 
 var (
-	host     = "localhost"
-	port     = 5433
-	user     = "postgres"
-	password = "mysecretpassword"
-	dbname   = "go-api-backend-db"
+	host     = os.Getenv("HOST")
+	port     = 5432
+	user     = os.Getenv("USER")
+	password = os.Getenv("PASSWORD")
+	dbname   = os.Getenv("DBNAME")
 )
 
 const (
