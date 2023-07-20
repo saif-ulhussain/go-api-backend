@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"github.com/golang/mock/gomock"
 	. "github.com/onsi/ginkgo"
-	"github.com/onsi/gomega"
+	. "github.com/onsi/gomega"
 	"go-api-backend/internal/handlers"
 	"go-api-backend/mocks"
 	"net/http"
@@ -38,14 +38,14 @@ var _ = Describe("CreateHabitHandler", func() {
 			mockRepo.EXPECT().InsertHabit(gomock.Any()).Return(nil)
 
 			req, err := http.NewRequest(http.MethodPost, "/habits", bytes.NewBuffer(validJSON))
-			gomega.Expect(err).NotTo(gomega.HaveOccurred())
+			Expect(err).NotTo(HaveOccurred())
 
 			res := httptest.NewRecorder()
 
 			habitHandler.CreateHabitHandler(res, req)
 
-			gomega.Expect(res.Code).To(gomega.Equal(http.StatusCreated))
-			gomega.Expect(res.Body.String()).To(gomega.Equal("Entry successfully created."))
+			Expect(res.Code).To(Equal(http.StatusCreated))
+			Expect(res.Body.String()).To(Equal("Entry successfully created."))
 		})
 	})
 
@@ -61,7 +61,7 @@ var _ = Describe("CreateHabitHandler", func() {
             "category": "Golang" }`)
 
 			req, err := http.NewRequest(http.MethodPost, "/habits", bytes.NewBuffer(invalidJSON))
-			gomega.Expect(err).NotTo(gomega.HaveOccurred())
+			Expect(err).NotTo(HaveOccurred())
 
 			res := httptest.NewRecorder()
 
@@ -69,8 +69,8 @@ var _ = Describe("CreateHabitHandler", func() {
 
 			habitHandler.CreateHabitHandler(res, req)
 
-			gomega.Expect(res.Code).To(gomega.Equal(http.StatusBadRequest))
-			gomega.Expect(res.Body.String()).To(gomega.ContainSubstring("Invalid request body"))
+			Expect(res.Code).To(Equal(http.StatusBadRequest))
+			Expect(res.Body.String()).To(ContainSubstring("Invalid request body"))
 		})
 	})
 })
