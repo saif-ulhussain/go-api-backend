@@ -2,8 +2,11 @@ package routes
 
 import (
 	"database/sql"
+	"fmt"
 	"github.com/gorilla/mux"
 	"github.com/newrelic/go-agent/v3/newrelic"
+	. "go-api-backend/internal/configuration"
+	newrelicconfig "go-api-backend/internal/configuration/newrelic"
 	"go-api-backend/internal/handlers"
 	"go-api-backend/internal/repository"
 )
@@ -11,10 +14,9 @@ import (
 func SetupRoutes(db *sql.DB) *mux.Router {
 	routes := mux.NewRouter()
 
-	app, err := newreliconfig.Initialize()
-
+	app, err := newrelicconfig.Initialize()
 	if err != nil {
-		LogInfo(err)
+		LogInfo(fmt.Sprintf("Error initialising new relic %s", err))
 	}
 
 	habitRepository := repository.NewHabitRepository(db)

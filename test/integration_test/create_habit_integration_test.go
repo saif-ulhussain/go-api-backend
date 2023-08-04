@@ -17,7 +17,7 @@ import (
 
 func setupTestDatabase() (*sql.DB, error) {
 	// Connect to the test database using the updated connection details
-	db, err := sql.Open("postgres", "host=localhost port=5432 user=postgres password=mysecretpassword dbname=go-api-backend-db sslmode=disable")
+	db, err := sql.Open("postgres", "host=localhost port=5433 user=postgres password=mysecretpassword dbname=go-api-backend-db-test sslmode=disable")
 	if err != nil {
 		return nil, fmt.Errorf("Failed to connect to the test db: %v", err)
 	}

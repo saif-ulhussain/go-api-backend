@@ -15,3 +15,9 @@ func LogInfo(message string) {
 		logger.Info(message)
 	}
 }
+
+func LogError(message string) {
+	if logger != nil {
+		logger.Error(message)
+	}
+}
