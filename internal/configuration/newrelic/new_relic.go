@@ -12,7 +12,7 @@ func Initialize() (*newrelic.Application, error) {
 		newrelic.ConfigAppLogForwardingEnabled(true),
 	)
 	if err != nil {
-		return nil, err
+		return app, err
 	}
 	return app, nil
 }

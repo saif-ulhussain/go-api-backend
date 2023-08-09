@@ -16,7 +16,6 @@ import (
 )
 
 func setupTestDatabase() (*sql.DB, error) {
-	// Connect to the test database using the updated connection details
 	db, err := sql.Open("postgres", "host=localhost port=5433 user=postgres password=mysecretpassword dbname=go-api-backend-db-test sslmode=disable")
 	if err != nil {
 		return nil, fmt.Errorf("Failed to connect to the test db: %v", err)
@@ -42,7 +41,6 @@ var _ = Describe("CreateHabitHandler", func() {
 	)
 
 	BeforeEach(func() {
-		// Set up the test database
 		var err error
 		testDB, err = setupTestDatabase()
 		habitRepository = repository.NewHabitRepository(testDB)
@@ -51,7 +49,6 @@ var _ = Describe("CreateHabitHandler", func() {
 	})
 
 	AfterEach(func() {
-		// Clear the test database
 		clearTestDatabase(testDB)
 	})
 
@@ -97,7 +94,7 @@ var _ = Describe("CreateHabitHandler", func() {
 			habitHandler.CreateHabitHandler(res, req)
 
 			Expect(res.Code).To(Equal(http.StatusBadRequest))
-			Expect(res.Body.String()).To(ContainSubstring("Failed to insert new habit"))
+			Expect(res.Body.String()).To(ContainSubstring("Invalid request body"))
 		})
 	})
 })

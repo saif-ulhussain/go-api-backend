@@ -10,14 +10,15 @@ require (
 	github.com/newrelic/go-agent/v3 v3.23.1
 	github.com/onsi/ginkgo v1.16.5
 	github.com/onsi/gomega v1.27.8
-	github.com/sirupsen/logrus v1.9.3
 )
 
 require (
+	github.com/JSainsburyPLC/go-logrus-wrapper v1.3.1 // indirect
 	github.com/fsnotify/fsnotify v1.6.0 // indirect
 	github.com/golang/protobuf v1.5.3 // indirect
 	github.com/google/go-cmp v0.5.9 // indirect
 	github.com/nxadm/tail v1.4.8 // indirect
+	github.com/sirupsen/logrus v1.9.0 // indirect
 	golang.org/x/net v0.11.0 // indirect
 	golang.org/x/sys v0.9.0 // indirect
 	golang.org/x/text v0.10.0 // indirect

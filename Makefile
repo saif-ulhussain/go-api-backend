@@ -1,4 +1,6 @@
 SHELL := /bin/bash
+UNIT_TEST_DIRECTORY := .internal/handlers
+INTEGRATION_TEST_DIRECTORY := test
 
 export $(shell sed 's/=.*//' .env)
 
@@ -18,3 +20,7 @@ migrate-down:
 	migrate -path migrations -database "postgresql://postgres:mysecretpassword@localhost:5432/go-api-backend-db?sslmode=disable" -verbose down
 #	@go run -mod=readonly cmd/api/main.go migrate -path internal/db/migrations -database "postgresql://$$DB_USER:DbS3rVe@1@localhost:5432/postgres?sslmode=disable" -verbose down
 
+test: unit-test integration-test
+
+unit-test:
+	go test $(UNIT_TEST_DIR) -v

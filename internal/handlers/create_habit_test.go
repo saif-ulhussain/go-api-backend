@@ -49,7 +49,7 @@ var _ = Describe("CreateHabitHandler", func() {
 		})
 	})
 
-	Context("When incomplete habit data is provided / mandatory property is missing", func() {
+	Context("When invalid habit data is provided / mandatory property is missing", func() {
 		It("Should return a status response of 400", func() {
 			invalidJSON := []byte(`{
             "name": "Complete Leet Code Exercise...",
@@ -71,6 +71,30 @@ var _ = Describe("CreateHabitHandler", func() {
 
 			Expect(res.Code).To(Equal(http.StatusBadRequest))
 			Expect(res.Body.String()).To(ContainSubstring("Invalid request body"))
+		})
+	})
+
+	Context("When a mandatory property is missing", func() {
+		It("Should return a status response of 400", func() {
+			invalidJSON := []byte(`{
+            "start_date": null,
+            "end_date": null,
+            "streak_count": 20,
+            "completed": true,
+            "comments": "great!",
+            "category": "Golang" }`)
+
+			req, err := http.NewRequest(http.MethodPost, "/habits", bytes.NewBuffer(invalidJSON))
+			Expect(err).NotTo(HaveOccurred())
+
+			res := httptest.NewRecorder()
+
+			mockRepo.EXPECT().InsertHabit(gomock.Any()).Return(nil)
+
+			habitHandler.CreateHabitHandler(res, req)
+
+			Expect(res.Code).To(Equal(http.StatusBadRequest))
+			Expect(res.Body.String()).To(ContainSubstring("required properties are missing"))
 		})
 	})
 })

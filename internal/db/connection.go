@@ -3,23 +3,10 @@ package db
 import (
 	"database/sql"
 	"fmt"
+	log "github.com/JSainsburyPLC/go-logrus-wrapper"
 	_ "github.com/lib/pq"
-	"go-api-backend/internal/configuration"
 	"os"
 )
-
-//var (
-//	host     string
-//	port     string
-//	user     string
-//	password string
-//	dbname   string
-//	//	host     = "localhost"
-//	//	port     = 5432
-//	//	user     = "postgres"
-//	//	password = "mysecretpassword"
-//	//	dbname   = "go-api-backend-db"
-//)
 
 const (
 	connString = "host=%s port=%s user=%s password=%s dbname=%s sslmode=disable"
@@ -35,12 +22,11 @@ func GetConnectionString() string {
 }
 
 func ConnectToDB() (*sql.DB, error) {
-	configuration.LogInfo(fmt.Sprintf("Database Attempting to Connect."))
+	log.Info("Database Attempting to Connect.")
 
 	db, err := sql.Open("postgres", GetConnectionString())
 	if err != nil {
-		configuration.LogError(fmt.Sprintf("Database connection error: %s", err))
-
+		log.Error(fmt.Sprintf("Database connection error: %s", err))
 		return nil, err
 	}
 
@@ -48,10 +34,7 @@ func ConnectToDB() (*sql.DB, error) {
 		db.Close()
 		return nil, err
 	}
-	configuration.LogInfo("Successfully connected to database.")
-	return db, nil
-}
 
-func CloseDB(db *sql.DB) {
-	db.Close()
+	log.Info("Successfully connected to database.")
+	return db, nil
 }

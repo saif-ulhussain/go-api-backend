@@ -2,25 +2,20 @@ package main
 
 import (
 	"fmt"
+	log "github.com/JSainsburyPLC/go-logrus-wrapper"
 	"github.com/joho/godotenv"
-	"github.com/sirupsen/logrus"
-	"go-api-backend/internal/configuration"
 	"go-api-backend/internal/db"
 	"go-api-backend/internal/routes"
-	"log"
 	"net/http"
 )
 
 func main() {
 	err := godotenv.Load()
 	if err != nil {
-		log.Fatal("Error loading .env file")
+		log.Fatalf("Error loading .env file: %s", err)
 	}
 
-	logger := logrus.New()
-	logger.SetLevel(logrus.DebugLevel)
-	log.SetOutput(logger.Writer())
-	configuration.InitialiseLogger(logger)
+	log.Enable("info")
 
 	db, err := db.ConnectToDB()
 	if err != nil {
