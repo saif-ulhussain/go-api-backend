@@ -22,9 +22,12 @@ func SetupRoutes(db *sql.DB) *mux.Router {
 	}
 
 	habitRepository := repository.NewHabitRepository(db)
+	userRepository := repository.NewUserRepository(db)
 	habitHandler := handlers.NewHabitHandler(habitRepository)
+	userHandler := handlers.NewUserHandler(userRepository)
 
 	routes.HandleFunc(newrelic.WrapHandleFunc(app, "/health", handlers.HealthCheckHandler)).Methods(http.MethodGet)
-	routes.HandleFunc(newrelic.WrapHandleFunc(app, "/create-habit", habitHandler.CreateHabitHandler)).Methods(http.MethodPost)
+	routes.HandleFunc(newrelic.WrapHandleFunc(app, "/habit", habitHandler.CreateHabitHandler)).Methods(http.MethodPost)
+	routes.HandleFunc(newrelic.WrapHandleFunc(app, "/user", userHandler.CreateUserHandler)).Methods(http.MethodPost)
 	return routes
 }

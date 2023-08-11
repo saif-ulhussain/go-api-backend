@@ -37,7 +37,7 @@ var _ = Describe("CreateHabitHandler", func() {
 
 			mockRepo.EXPECT().InsertHabit(gomock.Any()).Return(nil)
 
-			req, err := http.NewRequest(http.MethodPost, "/habits", bytes.NewBuffer(validJSON))
+			req, err := http.NewRequest(http.MethodPost, "/habit", bytes.NewBuffer(validJSON))
 			Expect(err).NotTo(HaveOccurred())
 
 			res := httptest.NewRecorder()

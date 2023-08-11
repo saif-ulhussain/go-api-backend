@@ -22,7 +22,7 @@ func NewUserRepository(db *sql.DB) *UserRepository {
 }
 
 func (u *UserRepository) InsertUser(user models.User) error {
-	query := "INSERT INTO user (first_name, last_name, email, password) VALUES ($1, $2, $3, $4)"
+	query := "INSERT INTO \"user\" (first_name, last_name, email, password) VALUES ($1, $2, $3, $4)"
 	stmt, err := u.db.Prepare(query)
 
 	if err != nil {

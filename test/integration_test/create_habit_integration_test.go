@@ -66,7 +66,7 @@ var _ = Describe("CreateHabitHandler", func() {
 			habitJSON, err := json.Marshal(habit)
 			Expect(err).NotTo(HaveOccurred())
 
-			req := httptest.NewRequest("POST", "/create-habit", bytes.NewBuffer(habitJSON))
+			req := httptest.NewRequest("POST", "/habit", bytes.NewBuffer(habitJSON))
 			req.Header.Set("Content-Type", "application/json")
 
 			res := httptest.NewRecorder()
@@ -86,7 +86,7 @@ var _ = Describe("CreateHabitHandler", func() {
 			habitJSON, err := json.Marshal(habit)
 			Expect(err).NotTo(HaveOccurred())
 
-			req := httptest.NewRequest("POST", "/create-habit", bytes.NewBuffer(habitJSON))
+			req := httptest.NewRequest("POST", "/habit", bytes.NewBuffer(habitJSON))
 			req.Header.Set("Content-Type", "application/json")
 
 			res := httptest.NewRecorder()
