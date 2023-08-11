@@ -2,54 +2,57 @@ package handlers
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
-	"go-api-backend/internal/db"
-	"log"
+	log "github.com/JSainsburyPLC/go-logrus-wrapper"
+	. "go-api-backend/internal/models"
+	"go-api-backend/internal/repository"
 	"net/http"
 )
 
-type Habit struct {
-	ID          int     `json:"id"`
-	Name        string  `json:"name"`
-	StartDate   string  `json:"start_date"`
-	EndDate     *string `json:"end_date"`
-	StreakCount *int    `json:"streak_count"`
-	Completed   *bool   `json:"completed"`
-	Comments    *string `json:"comments"`
-	Category    *string `json:"category"`
+type HabitHandler struct {
+	habitRepository repository.HabitRepositoryInterface
 }
 
-func CreateHabitHandler(w http.ResponseWriter, r *http.Request) {
+func NewHabitHandler(habitRepository repository.HabitRepositoryInterface) *HabitHandler {
+	return &HabitHandler{
+		habitRepository: habitRepository,
+	}
+}
+
+func (h *HabitHandler) CreateHabitHandler(w http.ResponseWriter, r *http.Request) {
 	var habit Habit
+
 	err := json.NewDecoder(r.Body).Decode(&habit)
 	if err != nil {
 		http.Error(w, fmt.Sprintf("Invalid request body: %s", err.Error()), http.StatusBadRequest)
+		log.Error(fmt.Sprintf("Invalid request body: %s", err))
 		return
 	}
 
-	err = InsertHabit(habit)
+	err = h.validateHabit(habit)
+	if err != nil {
+		http.Error(w, fmt.Sprintf("Invalid request body: %s", err.Error()), http.StatusBadRequest)
+		log.Error(fmt.Sprintf("Invalid request body: %s", err))
+		return
+	}
+
+	err = h.habitRepository.InsertHabit(habit)
 	if err != nil {
 		http.Error(w, "Failed to insert new habit", http.StatusBadRequest)
+		log.Error(fmt.Sprintf("Failed to insert new habit: %s", err))
 		return
 	}
 
 	w.WriteHeader(http.StatusCreated)
 	w.Write([]byte("Entry successfully created."))
+
+	log.CtxInfof(r.Context(), "Entry successfully created.")
 }
 
-func InsertHabit(habit Habit) error {
-	db, err := db.ConnectToDB()
-	if err != nil {
-		log.Fatal(err)
+func (h *HabitHandler) validateHabit(habit Habit) error {
+	if habit.Name == "" || habit.StartDate == "" {
+		return errors.New("required properties are missing")
 	}
-	defer db.Close()
-
-	query := "INSERT INTO habit (name, start_date, end_date, streak_count, completed, comments, category) VALUES ($1, $2, $3, $4, $5, $6, $7)"
-	_, err = db.Exec(query, habit.Name, habit.StartDate, habit.EndDate, habit.StreakCount, habit.Completed, habit.Comments, habit.Category)
-
-	if err != nil {
-		return err
-	}
-
 	return nil
 }
