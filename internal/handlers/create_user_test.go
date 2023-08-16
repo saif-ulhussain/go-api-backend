@@ -28,7 +28,8 @@ var _ = Describe("CreateUserHandler", func() {
 			userJSON := []byte(`{
 				"first_name": "S",
 				"last_name": "Hussain",
-				"email": "email@email.com"
+				"email": "email@email.com",
+				"password": "SecurePassword!"
 			}`)
 
 			mockRepo.EXPECT().InsertUser(gomock.Any()).Return(nil)
@@ -42,6 +43,28 @@ var _ = Describe("CreateUserHandler", func() {
 
 			Expect(res.Code).To(Equal(http.StatusCreated))
 			Expect(res.Body.String()).To(Equal("User successfully created."))
+		})
+	})
+	Context("When invalid new user details is provided", func() {
+		It("Should return a http status code of 400", func() {
+			userJSON := []byte(`{
+				"first_name": 12345,
+				"last_name": "Hussain",
+				"email": "email@email.com",
+				"password": "SecurePassword!"
+			}`)
+
+			req, err := http.NewRequest(http.MethodPost, "/user", bytes.NewBuffer(userJSON))
+			Expect(err).NotTo(HaveOccurred())
+
+			res := httptest.NewRecorder()
+
+			mockRepo.EXPECT().InsertUser(gomock.Any()).Return(nil)
+
+			userHandler.CreateUserHandler(res, req)
+
+			Expect(res.Code).To(Equal(http.StatusBadRequest))
+			Expect(res.Body.String()).To(ContainSubstring("Invalid request body"))
 		})
 	})
 })

@@ -44,7 +44,7 @@ func setupTestDatabase() (*sql.DB, error) {
 }
 
 func clearTestDatabase(db *sql.DB) {
-	_, _ = db.Exec("TRUNCATE TABLE habit, \"user\"")
+	db.Exec("TRUNCATE TABLE habit, \"user\"")
 }
 
 func TestIntegration(t *testing.T) {
