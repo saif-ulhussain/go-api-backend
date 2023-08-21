@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"database/sql"
 	"encoding/json"
-	"fmt"
 	_ "github.com/lib/pq"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
@@ -14,24 +13,6 @@ import (
 	"net/http"
 	"net/http/httptest"
 )
-
-func setupTestDatabase() (*sql.DB, error) {
-	db, err := sql.Open("postgres", "host=localhost port=5433 user=postgres password=mysecretpassword dbname=go-api-backend-db-test sslmode=disable")
-	if err != nil {
-		return nil, fmt.Errorf("Failed to connect to the test db: %v", err)
-	}
-
-	err = db.Ping()
-	if err != nil {
-		return nil, fmt.Errorf("Failed to ping the test db: %v", err)
-	}
-
-	return db, nil
-}
-
-func clearTestDatabase(db *sql.DB) {
-	_, _ = db.Exec("TRUNCATE TABLE habit")
-}
 
 var _ = Describe("CreateHabitHandler", func() {
 	var (
@@ -66,7 +47,7 @@ var _ = Describe("CreateHabitHandler", func() {
 			habitJSON, err := json.Marshal(habit)
 			Expect(err).NotTo(HaveOccurred())
 
-			req := httptest.NewRequest("POST", "/create-habit", bytes.NewBuffer(habitJSON))
+			req := httptest.NewRequest(http.MethodPost, "/habit", bytes.NewBuffer(habitJSON))
 			req.Header.Set("Content-Type", "application/json")
 
 			res := httptest.NewRecorder()
@@ -86,7 +67,7 @@ var _ = Describe("CreateHabitHandler", func() {
 			habitJSON, err := json.Marshal(habit)
 			Expect(err).NotTo(HaveOccurred())
 
-			req := httptest.NewRequest("POST", "/create-habit", bytes.NewBuffer(habitJSON))
+			req := httptest.NewRequest(http.MethodPost, "/habit", bytes.NewBuffer(habitJSON))
 			req.Header.Set("Content-Type", "application/json")
 
 			res := httptest.NewRecorder()
