@@ -2,11 +2,14 @@ package handlers_test
 
 import (
 	"bytes"
+	"context"
+	"github.com/golang-jwt/jwt"
 	"github.com/golang/mock/gomock"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	"go-api-backend/internal/handlers"
 	"go-api-backend/mocks"
+	"math/rand"
 	"net/http"
 	"net/http/httptest"
 )
@@ -35,9 +38,14 @@ var _ = Describe("CreateHabitHandler", func() {
 				"category": "Golang"
 			}`)
 
-			mockRepo.EXPECT().InsertHabit(gomock.Any()).Return(nil)
+			mockJWTClaim := jwt.MapClaims{
+				"exp":  0000000000,
+				"user": rand.Float64(),
+			}
+			ctx := context.WithValue(context.Background(), "JWT", mockJWTClaim)
 
-			req, err := http.NewRequest(http.MethodPost, "/habits", bytes.NewBuffer(validJSON))
+			mockRepo.EXPECT().InsertHabit(gomock.Any()).Return(nil)
+			req, err := http.NewRequestWithContext(ctx, http.MethodPost, "/habit", bytes.NewBuffer(validJSON))
 			Expect(err).NotTo(HaveOccurred())
 
 			res := httptest.NewRecorder()

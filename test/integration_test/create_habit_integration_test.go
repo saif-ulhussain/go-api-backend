@@ -2,9 +2,10 @@ package integration_test
 
 import (
 	"bytes"
+	"context"
 	"database/sql"
 	"encoding/json"
-	"fmt"
+	"github.com/golang-jwt/jwt"
 	_ "github.com/lib/pq"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
@@ -14,24 +15,6 @@ import (
 	"net/http"
 	"net/http/httptest"
 )
-
-func setupTestDatabase() (*sql.DB, error) {
-	db, err := sql.Open("postgres", "host=localhost port=5433 user=postgres password=mysecretpassword dbname=go-api-backend-db-test sslmode=disable")
-	if err != nil {
-		return nil, fmt.Errorf("Failed to connect to the test db: %v", err)
-	}
-
-	err = db.Ping()
-	if err != nil {
-		return nil, fmt.Errorf("Failed to ping the test db: %v", err)
-	}
-
-	return db, nil
-}
-
-func clearTestDatabase(db *sql.DB) {
-	_, _ = db.Exec("TRUNCATE TABLE habit")
-}
 
 var _ = Describe("CreateHabitHandler", func() {
 	var (
@@ -46,6 +29,7 @@ var _ = Describe("CreateHabitHandler", func() {
 		habitRepository = repository.NewHabitRepository(testDB)
 		habitHandler = handlers.NewHabitHandler(habitRepository)
 		Expect(err).NotTo(HaveOccurred())
+		seedTestData(testDB)
 	})
 
 	AfterEach(func() {
@@ -63,10 +47,19 @@ var _ = Describe("CreateHabitHandler", func() {
 				Comments:    nil,
 				Category:    nil,
 			}
+
+			mockJWTClaim := jwt.MapClaims{
+				"exp":  0000000000,
+				"user": 1.0,
+			}
+
 			habitJSON, err := json.Marshal(habit)
 			Expect(err).NotTo(HaveOccurred())
 
-			req := httptest.NewRequest("POST", "/create-habit", bytes.NewBuffer(habitJSON))
+			ctx := context.WithValue(context.Background(), "JWT", mockJWTClaim)
+
+			req, err := http.NewRequestWithContext(ctx, http.MethodPost, "/habit", bytes.NewBuffer(habitJSON))
+			Expect(err).NotTo(HaveOccurred())
 			req.Header.Set("Content-Type", "application/json")
 
 			res := httptest.NewRecorder()
@@ -86,7 +79,7 @@ var _ = Describe("CreateHabitHandler", func() {
 			habitJSON, err := json.Marshal(habit)
 			Expect(err).NotTo(HaveOccurred())
 
-			req := httptest.NewRequest("POST", "/create-habit", bytes.NewBuffer(habitJSON))
+			req := httptest.NewRequest(http.MethodPost, "/habit", bytes.NewBuffer(habitJSON))
 			req.Header.Set("Content-Type", "application/json")
 
 			res := httptest.NewRecorder()

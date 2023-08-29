@@ -9,4 +9,5 @@ type Habit struct {
 	Completed   *bool   `json:"completed"`
 	Comments    *string `json:"comments"`
 	Category    *string `json:"category"`
+	UserID      int
 }

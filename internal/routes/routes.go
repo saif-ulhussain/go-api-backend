@@ -9,6 +9,7 @@ import (
 	newrelicconfig "go-api-backend/internal/configuration/newrelic"
 	"go-api-backend/internal/handlers"
 	"go-api-backend/internal/repository"
+	"go-api-backend/internal/utilities"
 	"net/http"
 )
 
@@ -22,9 +23,14 @@ func SetupRoutes(db *sql.DB) *mux.Router {
 	}
 
 	habitRepository := repository.NewHabitRepository(db)
+	userRepository := repository.NewUserRepository(db)
 	habitHandler := handlers.NewHabitHandler(habitRepository)
+	userHandler := handlers.NewRegisterHandler(userRepository)
+	loginHandler := handlers.NewLoginHandler(userRepository)
 
 	routes.HandleFunc(newrelic.WrapHandleFunc(app, "/health", handlers.HealthCheckHandler)).Methods(http.MethodGet)
-	routes.HandleFunc(newrelic.WrapHandleFunc(app, "/create-habit", habitHandler.CreateHabitHandler)).Methods(http.MethodPost)
+	routes.Handle(newrelic.WrapHandle(app, "/habit", utilities.ValidateJWT(habitHandler.CreateHabitHandler))).Methods(http.MethodPost)
+	routes.HandleFunc(newrelic.WrapHandleFunc(app, "/register", userHandler.RegisterUserHandler)).Methods(http.MethodPost)
+	routes.HandleFunc(newrelic.WrapHandleFunc(app, "/login", loginHandler.LoginUserHandler)).Methods(http.MethodPost)
 	return routes
 }
