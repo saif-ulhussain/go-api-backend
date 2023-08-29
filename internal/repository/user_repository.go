@@ -11,6 +11,7 @@ import (
 
 type UserRepositoryInterface interface {
 	InsertUser(user models.User) error
+	GetUserByEmail(email string) (models.User, error)
 }
 
 type UserRepository struct {
@@ -40,4 +41,31 @@ func (u *UserRepository) InsertUser(user models.User) error {
 	}
 
 	return nil
+}
+
+func (u *UserRepository) GetUserByEmail(email string) (models.User, error) {
+	var user models.User
+
+	query := "SELECT * FROM \"user\"  WHERE email = $1"
+
+	stmt, err := u.db.Prepare(query)
+	if err != nil {
+		log.Error(fmt.Sprintf("Get User By Email Error: %s", err))
+		return user, err
+	}
+	defer stmt.Close()
+
+	row := stmt.QueryRow(email)
+
+	err = row.Scan(&user.ID, &user.FirstName, &user.LastName, &user.Email, &user.Password)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			log.Error(fmt.Sprintf("GetUserByEmail Error: %s", err))
+			return user, err
+		}
+		log.Error(fmt.Sprintf("GetUserByEmail Error: %s", err))
+		return user, err
+	}
+
+	return user, nil
 }

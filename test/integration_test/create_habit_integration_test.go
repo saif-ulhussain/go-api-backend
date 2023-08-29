@@ -2,8 +2,10 @@ package integration_test
 
 import (
 	"bytes"
+	"context"
 	"database/sql"
 	"encoding/json"
+	"github.com/golang-jwt/jwt"
 	_ "github.com/lib/pq"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
@@ -27,6 +29,7 @@ var _ = Describe("CreateHabitHandler", func() {
 		habitRepository = repository.NewHabitRepository(testDB)
 		habitHandler = handlers.NewHabitHandler(habitRepository)
 		Expect(err).NotTo(HaveOccurred())
+		seedTestData(testDB)
 	})
 
 	AfterEach(func() {
@@ -44,10 +47,19 @@ var _ = Describe("CreateHabitHandler", func() {
 				Comments:    nil,
 				Category:    nil,
 			}
+
+			mockJWTClaim := jwt.MapClaims{
+				"exp":  0000000000,
+				"user": 1.0,
+			}
+
 			habitJSON, err := json.Marshal(habit)
 			Expect(err).NotTo(HaveOccurred())
 
-			req := httptest.NewRequest(http.MethodPost, "/habit", bytes.NewBuffer(habitJSON))
+			ctx := context.WithValue(context.Background(), "JWT", mockJWTClaim)
+
+			req, err := http.NewRequestWithContext(ctx, http.MethodPost, "/habit", bytes.NewBuffer(habitJSON))
+			Expect(err).NotTo(HaveOccurred())
 			req.Header.Set("Content-Type", "application/json")
 
 			res := httptest.NewRecorder()

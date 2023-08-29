@@ -11,17 +11,17 @@ import (
 	"net/http"
 )
 
-type UserHandler struct {
+type RegisterHandler struct {
 	userRepository repository.UserRepositoryInterface
 }
 
-func NewUserHandler(userRepository repository.UserRepositoryInterface) *UserHandler {
-	return &UserHandler{
+func NewRegisterHandler(userRepository repository.UserRepositoryInterface) *RegisterHandler {
+	return &RegisterHandler{
 		userRepository: userRepository,
 	}
 }
 
-func (u *UserHandler) CreateUserHandler(w http.ResponseWriter, r *http.Request) {
+func (u *RegisterHandler) RegisterUserHandler(w http.ResponseWriter, r *http.Request) {
 	var user User
 
 	err := json.NewDecoder(r.Body).Decode(&user)
@@ -39,7 +39,7 @@ func (u *UserHandler) CreateUserHandler(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	err = u.validateUser(user)
+	err = u.validateUserDetails(user)
 	if err != nil {
 		http.Error(w, fmt.Sprintf("Invalid request body: %s", err.Error()), http.StatusBadRequest)
 		log.Error(fmt.Sprintf("Invalid request body: %s", err))
@@ -61,7 +61,7 @@ func (u *UserHandler) CreateUserHandler(w http.ResponseWriter, r *http.Request) 
 	log.CtxInfof(r.Context(), "User successfully created.")
 }
 
-func (u *UserHandler) validateUser(user User) error {
+func (u *RegisterHandler) validateUserDetails(user User) error {
 	if user.FirstName == "" || user.LastName == "" || user.Email == "" || user.Password == "" {
 		return errors.New("required properties are missing")
 	}

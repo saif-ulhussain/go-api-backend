@@ -13,18 +13,18 @@ import (
 	"net/http/httptest"
 )
 
-var _ = Describe("CreateUserHandler", func() {
+var _ = Describe("RegisterUserHandler", func() {
 	var (
-		testDB         *sql.DB
-		userRepository *repository.UserRepository
-		userHandler    *handlers.UserHandler
+		testDB          *sql.DB
+		userRepository  *repository.UserRepository
+		registerHandler *handlers.RegisterHandler
 	)
 
 	BeforeEach(func() {
 		var err error
 		testDB, err = setupTestDatabase()
 		userRepository = repository.NewUserRepository(testDB)
-		userHandler = handlers.NewUserHandler(userRepository)
+		registerHandler = handlers.NewRegisterHandler(userRepository)
 		Expect(err).NotTo(HaveOccurred())
 	})
 
@@ -44,12 +44,12 @@ var _ = Describe("CreateUserHandler", func() {
 			userJSON, err := json.Marshal(user)
 			Expect(err).NotTo(HaveOccurred())
 
-			req := httptest.NewRequest(http.MethodPost, "/user", bytes.NewBuffer(userJSON))
+			req := httptest.NewRequest(http.MethodPost, "/register", bytes.NewBuffer(userJSON))
 			req.Header.Set("Content-Type", "application/json")
 
 			res := httptest.NewRecorder()
 
-			userHandler.CreateUserHandler(res, req)
+			registerHandler.RegisterUserHandler(res, req)
 
 			Expect(res.Code).To(Equal(http.StatusCreated))
 
@@ -64,12 +64,12 @@ var _ = Describe("CreateUserHandler", func() {
 			userJson, err := json.Marshal(user)
 			Expect(err).NotTo(HaveOccurred())
 
-			req := httptest.NewRequest(http.MethodPost, "/user", bytes.NewBuffer(userJson))
+			req := httptest.NewRequest(http.MethodPost, "/register", bytes.NewBuffer(userJson))
 			req.Header.Set("Content-Type", "application/json")
 
 			res := httptest.NewRecorder()
 
-			userHandler.CreateUserHandler(res, req)
+			registerHandler.RegisterUserHandler(res, req)
 
 			Expect(res.Code).To(Equal(http.StatusBadRequest))
 			Expect(res.Body.String()).To(ContainSubstring("Invalid request body"))

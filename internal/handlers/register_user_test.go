@@ -11,16 +11,16 @@ import (
 	"net/http/httptest"
 )
 
-var _ = Describe("CreateUserHandler", func() {
+var _ = Describe("RegisterUserHandler", func() {
 
-	var userHandler *handlers.UserHandler
+	var userHandler *handlers.RegisterHandler
 	var mockRepo *mocks.MockUserRepositoryInterface
 
 	BeforeEach(func() {
 		ctrl := gomock.NewController(GinkgoT())
 		defer ctrl.Finish()
 		mockRepo = mocks.NewMockUserRepositoryInterface(ctrl)
-		userHandler = handlers.NewUserHandler(mockRepo)
+		userHandler = handlers.NewRegisterHandler(mockRepo)
 	})
 
 	Context("When valid new user details is provided", func() {
@@ -34,12 +34,12 @@ var _ = Describe("CreateUserHandler", func() {
 
 			mockRepo.EXPECT().InsertUser(gomock.Any()).Return(nil)
 
-			req, err := http.NewRequest(http.MethodPost, "/user", bytes.NewBuffer(userJSON))
+			req, err := http.NewRequest(http.MethodPost, "/register", bytes.NewBuffer(userJSON))
 			Expect(err).NotTo(HaveOccurred())
 
 			res := httptest.NewRecorder()
 
-			userHandler.CreateUserHandler(res, req)
+			userHandler.RegisterUserHandler(res, req)
 
 			Expect(res.Code).To(Equal(http.StatusCreated))
 			Expect(res.Body.String()).To(Equal("User successfully created."))
@@ -54,14 +54,14 @@ var _ = Describe("CreateUserHandler", func() {
 				"password": "SecurePassword!"
 			}`)
 
-			req, err := http.NewRequest(http.MethodPost, "/user", bytes.NewBuffer(userJSON))
+			req, err := http.NewRequest(http.MethodPost, "/register", bytes.NewBuffer(userJSON))
 			Expect(err).NotTo(HaveOccurred())
 
 			res := httptest.NewRecorder()
 
 			mockRepo.EXPECT().InsertUser(gomock.Any()).Return(nil)
 
-			userHandler.CreateUserHandler(res, req)
+			userHandler.RegisterUserHandler(res, req)
 
 			Expect(res.Code).To(Equal(http.StatusBadRequest))
 			Expect(res.Body.String()).To(ContainSubstring("Invalid request body"))

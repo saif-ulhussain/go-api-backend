@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	log "github.com/JSainsburyPLC/go-logrus-wrapper"
+	"github.com/golang-jwt/jwt"
 	. "go-api-backend/internal/models"
 	"go-api-backend/internal/repository"
 	"net/http"
@@ -36,6 +37,9 @@ func (h *HabitHandler) CreateHabitHandler(w http.ResponseWriter, r *http.Request
 		log.Error(fmt.Sprintf("Invalid request body: %s", err))
 		return
 	}
+
+	claims := r.Context().Value("JWT").(jwt.MapClaims)
+	habit.UserID = int(claims["user"].(float64))
 
 	err = h.habitRepository.InsertHabit(habit)
 	if err != nil {

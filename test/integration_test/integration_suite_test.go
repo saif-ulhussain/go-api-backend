@@ -5,6 +5,7 @@ import (
 	"fmt"
 	log "github.com/JSainsburyPLC/go-logrus-wrapper"
 	"github.com/joho/godotenv"
+	"go-api-backend/internal/models"
 	"os"
 	"testing"
 
@@ -55,4 +56,29 @@ func TestIntegration(t *testing.T) {
 
 	RegisterFailHandler(Fail)
 	RunSpecs(t, "Integration Suite")
+}
+
+func seedTestData(db *sql.DB) {
+	userData := models.User{
+		ID:        1,
+		FirstName: "S",
+		LastName:  "H",
+		Email:     "email@email.com",
+		Password:  "$2a$10$C8AyR0Yae1jNrzOUHuZRI.cs9wK/ZfpDJ3yQLXhUoX5iuyHwO/FJK",
+	}
+
+	query := "INSERT INTO \"user\" (id, first_name, last_name, email, password) VALUES ($1, $2, $3, $4, $5)"
+	stmt, err := db.Prepare(query)
+
+	if err != nil {
+		log.Error(fmt.Sprintf("Insert User Error: %s", err))
+	}
+
+	defer stmt.Close()
+
+	_, err = stmt.Exec(userData.ID, userData.FirstName, userData.LastName, userData.Email, userData.Password)
+
+	if err != nil {
+		log.Error(fmt.Sprintf("Insert User Error: %s", err))
+	}
 }
